@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, required=True)
 parser.add_argument('-f', type=curr_eval, required=True)
 parser.add_argument('-g', type=curr_eval, required=True)
+parser.add_argument('-r', type=str, default='r.npy')
 parser.add_argument('--bs', type=int)
 parser.add_argument('--gpu', type=int, default='-1')
 parser.add_argument('--iid', type=str, default='iid.npy')
@@ -25,7 +26,6 @@ parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--uid', type=str, default='uid.npy')
 parser.add_argument('--wd', type=float, required=True)
-parser.add_argument('--r', type=str, default='r.npy')
 args = parser.parse_args()
 
 uid = np.load(args.uid)
@@ -73,6 +73,7 @@ for i in range(args.n_iters):
     opt.step()
 
     print(rmse_batch.item())
+
     '''
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
