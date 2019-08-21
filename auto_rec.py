@@ -5,8 +5,8 @@ from torch_sparse import spmm
 class AutoRec(nn.Module):
     def __init__(self, n, d, g, f):
         super().__init__()
-        self.v = nn.Parameter(th.randn(n, d))
-        self.mu = nn.Parameter(th.zeros(1, d))
+        self.v = nn.Parameter(1e-3 * th.randn(n, d))
+        self.mu = nn.Parameter(1e-3 * th.zeros(1, d))
         self.g = g
         self.w = nn.Parameter(th.randn(n, d))
         self.b = nn.Parameter(th.zeros(n))
