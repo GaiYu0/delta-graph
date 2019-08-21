@@ -64,13 +64,13 @@ for i in range(args.n_iters):
         uid_batch, iid_batch, r_batch = uid[idx_batch], iid[idx_batch], r[idx_batch]
 
     s_batch = model(uid_batch, iid_batch, r_batch, uid_batch, iid_batch)
-    rmse_batch = utils.rmse(r_batch, s_batch)
+    mse_batch = utils.rmse(r_batch, s_batch)
 
     opt.zero_grad()
-    rmse_batch.backward()
+    mse_batch.backward()
     opt.step()
 
-    print(rmse_batch.item())
+    print(mse_batch.item())
 
     '''
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
