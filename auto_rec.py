@@ -18,8 +18,8 @@ class AutoRec(nn.Module):
         ----------
         r : (m, n)
         """
-        h = self.g(spmm(idx, dat, m, n, v) + mu)
-        return self.f(th.sum(h[i] * self.w[j]) + b[j])
+        h = self.g(spmm(idx, dat, m, n, self.v) + mu)
+        return self.f(th.sum(h[i] * self.w[j]) + self.b[j])
 
 class IAutoRec(AutoRec):
     def __init__(self, n_users, n_items, d, g, f):
