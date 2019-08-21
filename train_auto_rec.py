@@ -44,7 +44,7 @@ iid = th.from_numpy(iid).to(device)
 y = th.from_numpy(y).to(device)
 
 model = model.to(device)
-opt = args.opt(model.parameters(), lr, weight_decay=args.wd)
+opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
 n_train = int(args.p_train * len(y))
 n_val = int(args.p_val * len(y))
