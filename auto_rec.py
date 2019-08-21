@@ -12,13 +12,13 @@ class AutoRec(nn.Module):
         self.b = nn.Parameter(th.zeros(n))
         self.f = f
 
-    def forward(self, idx, dat, m, i, j):
+    def forward(self, ij, r, m, i, j):
         """
         Parameters
         ----------
         r : (m, n)
         """
-        h = self.g(spmm(idx, dat, m, self.v) + mu)
+        h = self.g(spmm(ij, r, m, self.v) + mu)
         return self.f(th.sum(h[i] * self.w[j]) + self.b[j])
 
 class IAutoRec(AutoRec):
@@ -27,5 +27,5 @@ class IAutoRec(AutoRec):
         self.n_users = n_users
         self.n_items = n_items
 
-    def forward(self, uid_in, iid_in, y, uid_out, iid_out):
-        return super().forward([iid_in, uid_in], y, self.n_items, iid_out, uid_out)
+    def forward(self, uid_in, iid_in, r, uid_out, iid_out):
+        return super().forward([iid_in, uid_in], r, self.n_items, iid_out, uid_out)
