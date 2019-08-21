@@ -11,9 +11,9 @@ class GCMC(nn.Module):
         self.reduce_chnl = reduce_chnl
         self.nonlinear = nonlinear
 
-        self.user_embeddings = nn.ModuleList([nn.Embedding(n_users, in_feats) \
+        self.embedding_u = nn.ModuleList([nn.Embedding(n_users, in_feats) \
                                               for i in range(n_chnls)])
-        self.item_embeddings = nn.ModuleList([nn.Embedding(n_items, in_feats) \
+        self.i_embeddings = nn.ModuleList([nn.Embedding(n_items, in_feats) \
                                               for i in range(n_chnls)])
         multiplier = {'cat' : n_chnls, 'sum' : 1}[reduce_chnl]
         self.linear = nn.Linear(multiplier * in_feats, out_feats)
@@ -21,9 +21,9 @@ class GCMC(nn.Module):
     def forward(self, uis, ius, u, i, h_prev=None):
         device = next(self.parameters()).device
         uu = [None if ui is None else mm(ui.coo, embedding(ui.uniq_j)) \
-              for ui, embedding in zip(uis, self.item_embeddings)]
+              for ui, embedding in zip(uis, self.i_embeddings)]
         ii = [None if iu is None else mm(iu.coo, embedding(iu.uniq_j)) \
-              for iu, embedding in zip(ius, self.user_embeddings)]
+              for iu, embedding in zip(ius, self.embedding_u)]
         u_zeros = th.zeros(self.n_users, self.in_feats, device=device)
         u_scatter = lambda ui, u: th.index_copy(u_zeros, 0, ui.uniq_i, u)
         i_zeros = th.zeros(self.n_items, self.in_feats, device=device)
