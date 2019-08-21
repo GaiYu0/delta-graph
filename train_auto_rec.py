@@ -57,10 +57,6 @@ uid_train, iid_train, y_train = uid[idx_train], iid[idx_train], y[idx_train]
 uid_val, iid_val, y_val = uid[idx_val], iid[idx_val], y[idx_val]
 uid_test, iid_test, y_test = uid[idx_test], iid[idx_test], y[idx_test]
 
-indices = th.stack(ij_train, 1)
-size = [n_items, n_users] if args.i else [n_users, n_items]
-r = sparse.FloatTensor(indices, y_train, size)
-
 for i in range(args.n_iters):
     if args.bs is None:
         uid_batch, iid_batch, y_batch = uid_train, iid_train, y_train
