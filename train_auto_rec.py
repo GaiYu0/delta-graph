@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import auto_rec
 import utils
 
-curr_eval = partial(eval, globals(), locals())
+curr_eval = partial(eval, globals=globals(), locals=locals())
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, required=True)
