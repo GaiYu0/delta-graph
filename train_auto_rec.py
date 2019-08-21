@@ -69,9 +69,12 @@ for i in range(args.n_iters):
     rmse_batch = utils.rmse(r_batch, s_batch)
 
     opt.zero_grad()
-    rmse_train.backward()
+    rmse_batch.backward()
     opt.step()
-    
+
+    print(rmse_batch)
+    '''
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
           (placeholder, i + 1, rmse_train, rmse_val, rmse_test))
+    '''
