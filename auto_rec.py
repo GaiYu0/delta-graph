@@ -18,7 +18,7 @@ class AutoRec(nn.Module):
         ----------
         r : (m, n)
         """
-        h = self.g(spmm(ij, r, m, self.v) + mu)
+        h = self.g(spmm(ij, r, m, self.v) + self.mu)
         return self.f(th.sum(h[i] * self.w[j]) + self.b[j])
 
 class IAutoRec(AutoRec):
