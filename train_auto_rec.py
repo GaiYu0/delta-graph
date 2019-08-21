@@ -65,7 +65,7 @@ for i in range(args.n_iters):
         idx_batch = range(j * args.bs, (j + 1) * args.bs)
         uid_batch, iid_batch, y_batch = uid[idx_batch], iid[idx_batch], y[idx_batch]
 
-    z_batch = model(r, uid_batch, iid_batch)
+    z_batch = model(uid_batch, iid_batch, y_batch, uid_batch, iid_batch)
     rmse_batch = utils.rmse(y_batch, z_batch)
 
     opt.zero_grad()
