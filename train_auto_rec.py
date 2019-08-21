@@ -25,12 +25,12 @@ parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--uid', type=str, default='uid.npy')
 parser.add_argument('--wd', type=float, required=True)
-parser.add_argument('--y', type=str, default='y.npy')
+parser.add_argument('--r', type=str, default='r.npy')
 args = parser.parse_args()
 
 uid = np.load(args.uid)
 iid = np.load(args.iid)
-y = np.load(args.y)
+r = np.load(args.r)
 
 n_users = np.max(uid) + 1
 n_items = np.max(iid) + 1
@@ -41,32 +41,32 @@ device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
 
 uid = th.from_numpy(uid).to(device)
 iid = th.from_numpy(iid).to(device)
-y = th.from_numpy(y).to(device)
+r = th.from_numpy(r).to(device)
 
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
-n_train = int(args.p_train * len(y))
-n_val = int(args.p_val * len(y))
-perm = th.randperm(len(y), device=device)
+n_train = int(args.p_train * len(r))
+n_val = int(args.p_val * len(r))
+perm = th.randperm(len(r), device=device)
 idx_train = perm[:n_train]
 idx_val = perm[n_train : n_train + n_val]
 idx_test = perm[n_train + n_val:]
 
-uid_train, iid_train, y_train = uid[idx_train], iid[idx_train], y[idx_train]
-uid_val, iid_val, y_val = uid[idx_val], iid[idx_val], y[idx_val]
-uid_test, iid_test, y_test = uid[idx_test], iid[idx_test], y[idx_test]
+uid_train, iid_train, r_train = uid[idx_train], iid[idx_train], r[idx_train]
+uid_val, iid_val, r_val = uid[idx_val], iid[idx_val], r[idx_val]
+uid_test, iid_test, r_test = uid[idx_test], iid[idx_test], r[idx_test]
 
 for i in range(args.n_iters):
     if args.bs is None:
-        uid_batch, iid_batch, y_batch = uid_train, iid_train, y_train
+        uid_batch, iid_batch, r_batch = uid_train, iid_train, r_train
     else:
-        j = i % (len(y) // args.bs)
+        j = i % (len(r) // args.bs)
         idx_batch = range(j * args.bs, (j + 1) * args.bs)
-        uid_batch, iid_batch, y_batch = uid[idx_batch], iid[idx_batch], y[idx_batch]
+        uid_batch, iid_batch, r_batch = uid[idx_batch], iid[idx_batch], r[idx_batch]
 
-    z_batch = model(uid_batch, iid_batch, y_batch, uid_batch, iid_batch)
-    rmse_batch = utils.rmse(y_batch, z_batch)
+    s_batch = model(uid_batch, iid_batch, r_batch, uid_batch, iid_batch)
+    rmse_batch = utils.rmse(r_batch, s_batch)
 
     opt.zero_grad()
     rmse_train.backward()

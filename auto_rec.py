@@ -28,5 +28,4 @@ class IAutoRec(AutoRec):
         self.n_items = n_items
 
     def forward(self, uid_in, iid_in, y, uid_out, iid_out):
-        i = th.stack([iid_in, uid_in], 1)
-        return super().forward(i, y, self.n_items, iid_out, uid_out)
+        return super().forward([iid_in, uid_in], y, self.n_items, iid_out, uid_out)
