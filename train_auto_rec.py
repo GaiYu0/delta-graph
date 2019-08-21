@@ -61,7 +61,7 @@ for i in range(args.n_iters):
     if args.bs is None:
         uid_batch, iid_batch, r_batch = uid_train, iid_train, r_train
     else:
-        j = i % (len(r) // args.bs)
+        j = i % (len(r_train) // args.bs)
         idx_batch = range(j * args.bs, (j + 1) * args.bs)
         uid_batch, iid_batch, r_batch = uid[idx_batch], iid[idx_batch], r[idx_batch]
 
