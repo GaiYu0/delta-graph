@@ -1,5 +1,4 @@
 import argparse
-from functools import partial
 
 import numpy as np
 import torch as th
@@ -9,7 +8,7 @@ import torch.nn.functional as F
 import auto_rec
 import utils
 
-curr_eval = partial(eval, globals=globals(), locals=locals())
+curr_eval = lambda x: eval(x, globals(), locals())
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, required=True)
