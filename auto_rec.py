@@ -6,9 +6,9 @@ class AutoRec(nn.Module):
     def __init__(self, n, d, g, f):
         super().__init__()
         self.v = nn.Parameter(1e-3 * th.randn(n, d))
-        self.mu = nn.Parameter(1e-3 * th.zeros(1, d))
+        self.mu = nn.Parameter(th.zeros(1, d))
         self.g = g
-        self.w = nn.Parameter(th.randn(n, d))
+        self.w = nn.Parameter(1e-3 * th.randn(n, d))
         self.b = nn.Parameter(th.zeros(n))
         self.f = f
 
