@@ -1,4 +1,5 @@
 import argparse
+from functools import partial
 
 import numpy as np
 import torch as th
@@ -8,17 +9,19 @@ import torch.nn.functional as F
 import auto_rec
 import utils
 
+curr_eval = partial(eval, globals(), locals())
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, required=True)
-parser.add_argument('-f', type=eval, required=True)
-parser.add_argument('-g', type=eval, required=True)
+parser.add_argument('-f', type=curr_eval, required=True)
+parser.add_argument('-g', type=curr_eval, required=True)
 parser.add_argument('--bs', type=int)
 parser.add_argument('--gpu', type=int, default='-1')
 parser.add_argument('--iid', type=str, default='iid.npy')
 parser.add_argument('--lr', type=float, required=True)
-parser.add_argument('--model', type=eval, required=True)
+parser.add_argument('--model', type=curr_eval, required=True)
 parser.add_argument('--n-iters', type=int, required=True)
-parser.add_argument('--opt', type=eval, required=True)
+parser.add_argument('--opt', type=curr_eval, required=True)
 parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--uid', type=str, default='uid.npy')
