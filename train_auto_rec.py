@@ -72,7 +72,7 @@ for i in range(args.n_iters):
     rmse_batch.backward()
     opt.step()
 
-    print(rmse_batch)
+    print(rmse_batch.item())
     '''
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
