@@ -65,23 +65,23 @@ for i in range(args.n_iters):
         uid_batch, iid_batch, r_batch = uid_train[perm_batch], iid_train[perm_batch], r_train[perm_batch]
 
     s_batch = model(uid_batch, iid_batch, r_batch)
-    mse = 5 * utils.rmse(r_batch, s_batch)
-#   mse = utils.mse(r_batch, s_batch)
+    mse = utils.mse(r_batch, s_batch)
     opt.zero_grad()
     mse.backward()
     opt.step()
 
     s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
+    rmse_batch = 5 * mse ** 0.5
     rmse_train = 5 * utils.rmse(r_train, s_train)
     rmse_val = 5 * utils.rmse(r_val, s_val)
     rmse_test = 5 * utils.rmse(r_test, s_test)
 
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
-    print('[%s%d]mse: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
-          (placeholder, i + 1, mse, rmse_train, rmse_val, rmse_test))
+    print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
+          (placeholder, i + 1, rmse_batch, rmse_train, rmse_val, rmse_test))
 
-    writer.add_scalar('mse', mse.item(), i + 1)
+    writer.add_scalar('rmse_batch', rmse_batch.item(), i + 1)
     writer.add_scalar('rmse_train', rmse_train.item(), i + 1)
     writer.add_scalar('rmse_val', rmse_val.item(), i + 1)
     writer.add_scalar('rmse_test', rmse_test.item(), i + 1)
