@@ -25,6 +25,7 @@ parser.add_argument('--n-iters', type=int, required=True)
 parser.add_argument('--opt', type=curr_eval, required=True)
 parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
+parser.add_argument('--path', type=str)
 parser.add_argument('--wd', type=float, required=True)
 args = parser.parse_args()
 
@@ -54,8 +55,10 @@ r_train, r_val, r_test = th.split(r, [n_train, n_val, n_test])
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
-writer = SummaryWriter()
-# writer = SummaryWriter('runs/' + str(args))
+if args.path is None:
+    writer = SummaryWriter()
+else:
+    writer = SummaryWriter('runs/' + args.path)
 
 for i in range(args.n_iters):
     if args.bs_train is None:
