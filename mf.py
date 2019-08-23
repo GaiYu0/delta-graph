@@ -9,7 +9,7 @@ class MF(nn.Module):
 
     def forward(self, uid, iid, s=None):
         if s is None:
-            uids, iid = [uid], [iid]
+            uids, iids = [uid], [iid]
         else:
             uids, iids = th.split(uid, s), th.split(iid, s)
         return th.cat([th.sum(self.h_user[uid] * self.h_item[iid], 1) \
