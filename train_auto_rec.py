@@ -72,8 +72,8 @@ for i in range(args.n_iters):
 
     for p in model.parameters():
         p.requires_grad = True
-    s_batch = model(uid_train, iid_train, r_train, uid_batch, iid_batch)
-#   s_batch = model(uid_batch, iid_batch, r_batch)
+    s_batch = model(uid_batch, iid_batch)
+#   s_batch = model(uid_train, iid_train, r_train, uid_batch, iid_batch)
     mse = F.mse_loss(r_batch, s_batch)
     opt.zero_grad()
     mse.backward()
