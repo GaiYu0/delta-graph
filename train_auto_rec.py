@@ -64,7 +64,8 @@ for i in range(args.n_iters):
         perm_batch = th.randperm(n_train, device=device)[:args.bs_train]
         uid_batch, iid_batch, r_batch = uid[perm_batch], iid[perm_batch], r[perm_batch]
 
-    s_batch = model(uid_batch, iid_batch, r_batch)
+    s_batch = model(uid_train, iid_train, r_batch, uid_batch, iid_batch)
+#   s_batch = model(uid_batch, iid_batch, r_batch)
     mse = F.mse_loss(r_batch, s_batch)
     opt.zero_grad()
     mse.backward()
