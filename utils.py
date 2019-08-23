@@ -1,4 +1,4 @@
 import torch as th
+import torch.nn.functional as F
 
-mse = lambda y, y_bar: th.mean((y - y_bar) ** 2)
-rmse = lambda y, y_bar: mse(y, y_bar) ** 0.5
+rmse_loss = lambda x: th.sqrt(F.mse_loss(x))

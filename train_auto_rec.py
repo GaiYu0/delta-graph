@@ -62,10 +62,10 @@ for i in range(args.n_iters):
         uid_batch, iid_batch, r_batch = uid_train, iid_train, r_train
     else:
         perm_batch = th.randperm(n_train, device=device)[:args.bs_train]
-        uid_batch, iid_batch, r_batch = uid_train[perm_batch], iid_train[perm_batch], r_train[perm_batch]
+        uid_batch, iid_batch, r_batch = uid[perm_batch], iid[perm_batch], r[perm_batch]
 
     s_batch = model(uid_batch, iid_batch, r_batch)
-    mse = utils.mse(r_batch, s_batch)
+    mse = F.mse_loss(r_batch, s_batch)
     opt.zero_grad()
     mse.backward()
     opt.step()
@@ -73,9 +73,9 @@ for i in range(args.n_iters):
     s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
     rmse_batch = 5 * mse ** 0.5
-    rmse_train = 5 * utils.rmse(r_train, s_train)
-    rmse_val = 5 * utils.rmse(r_val, s_val)
-    rmse_test = 5 * utils.rmse(r_test, s_test)
+    rmse_train = 5 * utils.rmse_loss(r_train, s_train)
+    rmse_val = 5 * utils.rmse_loss(r_val, s_val)
+    rmse_test = 5 * utils.rmse_loss(r_test, s_test)
 
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
