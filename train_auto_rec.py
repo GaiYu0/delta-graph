@@ -78,7 +78,7 @@ for i in range(args.n_iters):
     print('[%s%d]mse: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
           (placeholder, i + 1, mse, rmse_train, rmse_val, rmse_test))
 
-    writer.add_scalar('mse', mse.item(), global_step)
-    writer.add_scalar('train rmse', train_rmse.item(), global_step)
-    writer.add_scalar('val rmse', val_rmse.item(), global_step)
-    writer.add_scalar('test rmse', test_rmse.item(), global_step)
+    writer.add_scalar('mse', mse.item(), i + 1)
+    writer.add_scalar('train rmse', train_rmse.item(), i + 1)
+    writer.add_scalar('val rmse', val_rmse.item(), i + 1)
+    writer.add_scalar('test rmse', test_rmse.item(), i + 1)
