@@ -29,7 +29,7 @@ class IAutoRec(AutoRec):
         self.n_users = n_users
         self.n_items = n_items
 
-    def forward(self, uid_in, iid_in, r, uid_out=None, iid_out=None):
+    def forward(self, uid_in, iid_in, r, uid_out=None, iid_out=None, s=None):
         uid_out = uid_in if uid_out is None else uid_out
         iid_out = iid_in if iid_out is None else iid_out
-        return super().forward([iid_in, uid_in], r, self.n_items, iid_out, uid_out)
+        return super().forward([iid_in, uid_in], r, self.n_items, iid_out, uid_out, s)
