@@ -65,7 +65,7 @@ for i in range(args.n_iters):
         uid_batch, iid_batch, r_batch = uid_train[perm_batch], iid_train[perm_batch], r_train[perm_batch]
 
     s_batch = model(uid_batch, iid_batch, r_batch)
-    mse = utils.mse(r_batch, s_batch)
+    mse = 25 * utils.mse(r_batch, s_batch)
     opt.zero_grad()
     mse.backward()
     opt.step()
