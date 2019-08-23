@@ -81,7 +81,8 @@ for i in range(args.n_iters):
 
     for p in model.parameters():
         p.requires_grad = False
-    s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
+    s = model(uid, iid)
+#   s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
     rmse_batch = r_max * mse ** 0.5
     rmse_train = r_max * utils.rmse_loss(r_train, s_train)
