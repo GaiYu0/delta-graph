@@ -47,9 +47,9 @@ r = th.from_numpy(r).to(device)[perm]
 n_train = int(args.p_train * len(r))
 n_val = int(args.p_val * len(r))
 n_test = len(r) - n_train - n_val
-uid_train, iid_train, r_train = uid[:n_train], iid[:n_train], r[:n_train]
-r_val = r[n_train : n_train + n_val]
-r_test = r[n_train + n_val:]
+uid_train, uid_val, uid_test = th.split(uid, [n_train, n_val, n_test])
+iid_train, iid_val, iid_test = th.split(iid, [n_train, n_val, n_test])
+r_train, r_val, r_test = th.split(r, [n_train, n_val, n_test])
 
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
