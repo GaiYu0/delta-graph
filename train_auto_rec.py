@@ -1,6 +1,7 @@
 import argparse
 
 import numpy as np
+from tensorboardX import SummaryWriter
 import torch as th
 import torch.optim as optim
 import torch.nn.functional as F
@@ -14,7 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=int, required=True)
 parser.add_argument('-f', type=curr_eval, required=True)
 parser.add_argument('-g', type=curr_eval, required=True)
-parser.add_argument('--bs', type=int)
+parser.add_argument('--bs-infer', type=int)
+parser.add_argument('--bs-train', type=int)
 parser.add_argument('--ds', type=str)
 parser.add_argument('--gpu', type=int, default='-1')
 parser.add_argument('--lr', type=float, required=True)
@@ -37,43 +39,46 @@ model = args.model(n_users, n_items, args.d, args.g, args.f)
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
 
-uid = th.from_numpy(uid).to(device)
-iid = th.from_numpy(iid).to(device)
-r = th.from_numpy(r).to(device)
+perm = th.randperm(len(r), device=device)
+uid = th.from_numpy(uid).to(device)[perm]
+iid = th.from_numpy(iid).to(device)[perm]
+r = th.from_numpy(r).to(device)[perm]
+
+n_train = int(args.p_train * len(r))
+n_val = int(args.p_val * len(r))
+n_test = len(r) - n_train - n_val
+uid_train, iid_train, r_train = uid[:n_train], iid[:n_train], r[:n_train]
+r_val = r[n_train : n_train + n_val]
+r_test = r[n_train + n_val:]
 
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
-n_train = int(args.p_train * len(r))
-n_val = int(args.p_val * len(r))
-perm = th.randperm(len(r), device=device)
-idx_train = perm[:n_train]
-idx_val = perm[n_train : n_train + n_val]
-idx_test = perm[n_train + n_val:]
-
-uid_train, iid_train, r_train = uid[idx_train], iid[idx_train], r[idx_train]
-uid_val, iid_val, r_val = uid[idx_val], iid[idx_val], r[idx_val]
-uid_test, iid_test, r_test = uid[idx_test], iid[idx_test], r[idx_test]
-
+writer = SummaryWriter('runs/' + str(args).replace(' ', ''))
 for i in range(args.n_iters):
-    if args.bs is None:
+    if args.bs_train is None:
         uid_batch, iid_batch, r_batch = uid_train, iid_train, r_train
     else:
-        j = i % (len(r_train) // args.bs)
-        idx_batch = range(j * args.bs, (j + 1) * args.bs)
-        uid_batch, iid_batch, r_batch = uid[idx_batch], iid[idx_batch], r[idx_batch]
+        perm_batch = th.randperm(n_train, device=device)[:args.bs_train]
+        uid_batch, iid_batch, r_batch = uid[perm_batch], iid[perm_batch], r[perm_batch]
 
-    s_batch = model(uid_batch, iid_batch, r_batch, uid_batch, iid_batch)
-    mse_batch = utils.rmse(r_batch, s_batch)
-
+    s_batch = model(uid_batch, iid_batch, r_batch)
+    mse = utils.mse(r_batch, s_batch)
     opt.zero_grad()
-    mse_batch.backward()
+    mse.backward()
     opt.step()
 
-    print(mse_batch.item())
+    s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
+    s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
+    rmse_train = utils.rmse(r_train, s_train)
+    rmse_val = utils.rmse(r_val, s_val)
+    rmse_test = utils.rmse(r_test, s_test)
 
-    '''
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
-    print('[%s%d]rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
-          (placeholder, i + 1, rmse_train, rmse_val, rmse_test))
-    '''
+    print('[%s%d]mse: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
+          (placeholder, i + 1, mse, rmse_train, rmse_val, rmse_test))
+
+    writer.add_scalar('mse', mse.item(), global_step)
+    writer.add_scalar('train rmse', train_rmse.item(), global_step)
+    writer.add_scalar('val rmse', val_rmse.item(), global_step)
+    writer.add_scalar('test rmse', test_rmse.item(), global_step)
