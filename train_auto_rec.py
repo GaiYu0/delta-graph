@@ -79,6 +79,6 @@ for i in range(args.n_iters):
           (placeholder, i + 1, mse, rmse_train, rmse_val, rmse_test))
 
     writer.add_scalar('mse', mse.item(), i + 1)
-    writer.add_scalar('train rmse', train_rmse.item(), i + 1)
-    writer.add_scalar('val rmse', val_rmse.item(), i + 1)
-    writer.add_scalar('test rmse', test_rmse.item(), i + 1)
+    writer.add_scalar('rmse_train', rmse_train.item(), i + 1)
+    writer.add_scalar('rmse_val', rmse_val.item(), i + 1)
+    writer.add_scalar('rmse_test', rmse_test.item(), i + 1)
