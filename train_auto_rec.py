@@ -54,8 +54,8 @@ r_train, r_val, r_test = th.split(r, [n_train, n_val, n_test])
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
-# writer = SummaryWriter()
-writer = SummaryWriter('runs/' + str(args))
+writer = SummaryWriter()
+# writer = SummaryWriter('runs/' + str(args))
 
 for i in range(args.n_iters):
     if args.bs_train is None:
