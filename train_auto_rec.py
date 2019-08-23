@@ -72,9 +72,9 @@ for i in range(args.n_iters):
 
     s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
-    rmse_train = utils.rmse(r_train, s_train) * 5 ** 0.5
-    rmse_val = utils.rmse(r_val, s_val) * 5 ** 0.5
-    rmse_test = utils.rmse(r_test, s_test) * 5 ** 0.5
+    rmse_train = utils.rmse(r_train * 5, s_train * 5)
+    rmse_val = utils.rmse(r_val * 5, s_val * 5)
+    rmse_test = utils.rmse(r_test * 5, s_test * 5)
 
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]mse: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
