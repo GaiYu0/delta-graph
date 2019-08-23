@@ -31,12 +31,15 @@ args = parser.parse_args()
 
 uid = np.load(args.ds + '/uid.npy')
 iid = np.load(args.ds + '/iid.npy')
-r = np.load(args.ds + '/r.npy') / 5
+r = np.load(args.ds + '/r.npy')
+r_max = np.max(r)
+r /= r_max
 
 n_users = np.max(uid) + 1
 n_items = np.max(iid) + 1
 
-model = args.model(n_users, n_items, args.d, args.g, args.f)
+model = __import__('mf').MF(n_users, n_items, args.d)
+# model = args.model(n_users, n_items, args.d, args.g, args.f)
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
 
@@ -80,10 +83,10 @@ for i in range(args.n_iters):
         p.requires_grad = False
     s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
-    rmse_batch = 5 * mse ** 0.5
-    rmse_train = 5 * utils.rmse_loss(r_train, s_train)
-    rmse_val = 5 * utils.rmse_loss(r_val, s_val)
-    rmse_test = 5 * utils.rmse_loss(r_test, s_test)
+    rmse_batch = r_max * mse ** 0.5
+    rmse_train = r_max * utils.rmse_loss(r_train, s_train)
+    rmse_val = r_max * utils.rmse_loss(r_val, s_val)
+    rmse_test = r_max * utils.rmse_loss(r_test, s_test)
 
     placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
     print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
