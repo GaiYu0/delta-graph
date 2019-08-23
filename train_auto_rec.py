@@ -54,7 +54,9 @@ r_test = r[n_train + n_val:]
 model = model.to(device)
 opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
 
-writer = SummaryWriter('runs/' + str(args).replace(' ', ''))
+writer = SummaryWriter()
+# writer = SummaryWriter('runs/' + str(args).replace(' ', ''))
+
 for i in range(args.n_iters):
     if args.bs_train is None:
         uid_batch, iid_batch, r_batch = uid_train, iid_train, r_train
