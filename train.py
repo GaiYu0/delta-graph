@@ -3,26 +3,22 @@ import argparse
 import numpy as np
 from tensorboardX import SummaryWriter
 import torch as th
-import torch.optim as optim
+from torch.optim import *
 import torch.nn.functional as F
 
-import auto_rec
+from auto_rec import *
+from mf import *
 import utils
 
-curr_eval = lambda x: eval(x, globals(), locals())
-
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', type=int, required=True)
-parser.add_argument('-f', type=curr_eval, required=True)
-parser.add_argument('-g', type=curr_eval, required=True)
 parser.add_argument('--bs-infer', type=int)
 parser.add_argument('--bs-train', type=int)
 parser.add_argument('--ds', type=str)
 parser.add_argument('--gpu', type=int, default='-1')
 parser.add_argument('--lr', type=float, required=True)
-parser.add_argument('--model', type=curr_eval, required=True)
+parser.add_argument('--model', type=str, required=True)
 parser.add_argument('--n-iters', type=int, required=True)
-parser.add_argument('--opt', type=curr_eval, required=True)
+parser.add_argument('--optim', type=str, required=True)
 parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--path', type=str)
@@ -32,21 +28,14 @@ args = parser.parse_args()
 uid = np.load(args.ds + '/uid.npy')
 iid = np.load(args.ds + '/iid.npy')
 r = np.load(args.ds + '/r.npy')
-r_max = np.max(r)
-r /= r_max
-
-n_users = np.max(uid) + 1
-n_items = np.max(iid) + 1
-
-model = __import__('mf').MF(n_users, n_items, args.d)
-# model = args.model(n_users, n_items, args.d, args.g, args.f)
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
-
 perm = th.randperm(len(r), device=device)
 uid = th.from_numpy(uid).to(device)[perm]
 iid = th.from_numpy(iid).to(device)[perm]
 r = th.from_numpy(r).to(device)[perm]
+r_max = th.max(r)
+r /= r_max
 
 n_train = int(args.p_train * len(r))
 n_val = int(args.p_val * len(r))
@@ -55,13 +44,13 @@ uid_train, uid_val, uid_test = th.split(uid, [n_train, n_val, n_test])
 iid_train, iid_val, iid_test = th.split(iid, [n_train, n_val, n_test])
 r_train, r_val, r_test = th.split(r, [n_train, n_val, n_test])
 
-model = model.to(device)
-opt = args.opt(model.parameters(), args.lr, weight_decay=args.wd)
+n_users = th.max(uid) + 1
+n_items = th.max(iid) + 1
 
-if args.path is None:
-    writer = SummaryWriter()
-else:
-    writer = SummaryWriter('runs/' + args.path)
+model = eval(args.model).to(device)
+optim = eval(args.optim)
+
+writer = SummaryWriter() if args.path is None else SummaryWriter('runs/' + args.path)
 
 for i in range(args.n_iters):
     if args.bs_train is None:
@@ -72,17 +61,15 @@ for i in range(args.n_iters):
 
     for p in model.parameters():
         p.requires_grad = True
-    s_batch = model(uid_batch, iid_batch)
-#   s_batch = model(uid_train, iid_train, r_train, uid_batch, iid_batch)
+    s_batch = model(uid_train, iid_train, r_train, uid_batch, iid_batch)
     mse = F.mse_loss(r_batch, s_batch)
-    opt.zero_grad()
+    optim.zero_grad()
     mse.backward()
-    opt.step()
+    optim.step()
 
     for p in model.parameters():
         p.requires_grad = False
-    s = model(uid, iid)
-#   s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
+    s = model(uid_train, iid_train, r_train, uid, iid, args.bs_infer)
     s_train, s_val, s_test = th.split(s, [n_train, n_val, n_test])
     rmse_batch = r_max * mse ** 0.5
     rmse_train = r_max * utils.rmse_loss(r_train, s_train)

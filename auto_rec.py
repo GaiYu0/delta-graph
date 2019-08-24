@@ -2,6 +2,8 @@ import torch as th
 import torch.nn as nn
 from torch_sparse import spmm
 
+import mf
+
 class AutoRec(nn.Module):
     def __init__(self, n, d, g, f):
         super().__init__()
@@ -12,16 +14,14 @@ class AutoRec(nn.Module):
         self.b = nn.Parameter(th.zeros(n))
         self.f = f
 
-    def forward(self, ij, r, m, i, j, s=None):
+    def forward(self, u, i, r, m, v, j, s=None):
         """
         Parameters
         ----------
         r : (m, n)
         """
-        h = self.g(spmm(ij, r, m, self.v) + self.mu)
-        ii = [i] if s is None else th.split(i, s)
-        jj = [j] if s is None else th.split(j, s)
-        return th.cat([self.f(th.sum(h[i] * self.w[j], 1) + self.b[j]) for i, j in zip(ii, jj)])
+        h = self.g(spmm([i, u], r, m, self.v) + self.mu)
+        return mf.MF.decode(h, w, j, v, s) + self.b[v]
 
 class IAutoRec(AutoRec):
     def __init__(self, n_users, n_items, d, g, f):
@@ -29,5 +29,5 @@ class IAutoRec(AutoRec):
         self.n_users = n_users
         self.n_items = n_items
 
-    def forward(self, uid_in, iid_in, r_in, uid_out, iid_out, s=None):
-        return super().forward([iid_in, uid_in], r_in, self.n_items, iid_out, uid_out, s)
+    def forward(self, u, i, r, v, j, s=None):
+        return super().forward(i, u, r, self.n_items, j, v, s)
