@@ -15,14 +15,12 @@ parser.add_argument('--bs-infer', type=int)
 parser.add_argument('--bs-train', type=int)
 parser.add_argument('--ds', type=str)
 parser.add_argument('--gpu', type=int, default='-1')
-parser.add_argument('--lr', type=float, required=True)
 parser.add_argument('--model', type=str, required=True)
 parser.add_argument('--n-iters', type=int, required=True)
 parser.add_argument('--optim', type=str, required=True)
 parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
-parser.add_argument('--path', type=str)
-parser.add_argument('--wd', type=float, required=True)
+parser.add_argument('--logdir', type=str)
 args = parser.parse_args()
 
 uid = np.load(args.ds + '/uid.npy')
@@ -50,7 +48,7 @@ n_items = th.max(iid) + 1
 model = eval(args.model).to(device)
 optim = eval(args.optim)
 
-writer = SummaryWriter() if args.path is None else SummaryWriter('runs/' + args.path)
+writer = SummaryWriter(args.logdir)
 
 for i in range(args.n_iters):
     if args.bs_train is None:
