@@ -2,7 +2,7 @@ import torch as th
 import torch.nn as nn
 from torch_sparse import spmm
 
-import mf
+from mf import *
 
 class AutoRec(nn.Module):
     def __init__(self, n, d, g, f):
@@ -21,7 +21,7 @@ class AutoRec(nn.Module):
         r : (m, n)
         """
         h = self.g(spmm([i, u], r, m, self.v) + self.mu)
-        return mf.MF.decode(h, w, j, v, s) + self.b[v]
+        return MF.decode(h, w, j, v, s) + self.b[v]
 
 class IAutoRec(AutoRec):
     def __init__(self, n_users, n_items, d, g, f):

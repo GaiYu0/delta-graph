@@ -15,3 +15,17 @@ class MF(nn.Module):
 
     def forward(self, u, i, r, v, j, s=None):
         return MF.decode(self.h_u, self.h_i, v, j, s)
+
+class BiasedMF(MF):
+    def __init__(self, n_users, n_items, d, mu):
+        super().__init__(n_users, n_items, d)
+        self.b_u = nn.Parameter(th.zeros(n_users))
+        self.b_i = nn.Parameter(th.zeros(n_items))
+        self.mu = mu
+
+    @staticmethod
+    def decode(h_u, h_i, b_u, b_i, mu, u, i, s=None):
+        return MF.decode(h_u, h_i, u, i, s) + b_u[u] + b_i[i] + mu
+
+    def forward(self, u, i, r, v, j, s=None):
+        return BiasedMF.decode(self.h_u, self.h_i, self.b_u, self.b_i, self.mu, v, j, s)

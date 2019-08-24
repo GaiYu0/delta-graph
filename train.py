@@ -34,6 +34,7 @@ iid = th.from_numpy(iid).to(device)[perm]
 r = th.from_numpy(r).to(device)[perm]
 r_max = th.max(r)
 r /= r_max
+r_mean = th.mean(r)
 
 n_train = int(args.p_train * len(r))
 n_val = int(args.p_val * len(r))
