@@ -22,7 +22,6 @@ parser.add_argument('--n-iters', type=int, required=True)
 parser.add_argument('--optim', type=str, required=True)
 parser.add_argument('--p-train', type=float, required=True)
 parser.add_argument('--p-val', type=float, required=True)
-parser.add_argument('--semi', action='store_true')
 parser.add_argument('--x-train', type=str, requried=True)
 parser.add_argument('--x-val', type=str, requried=True)
 args = parser.parse_args()
@@ -57,6 +56,7 @@ optim = eval(args.optim)
 
 writer = SummaryWriter(args.logdir)
 
+mm = []
 for i in range(1, len(rs)):
     for j in range(args.n_iters):
         x_train = lambda x: eval(args.x_train.replace('x', x))
@@ -73,7 +73,7 @@ for i in range(1, len(rs)):
 
         for p in model.parameters():
             p.requires_grad = True
-        s_batch = model(u_train, i_train, r_train, u_batch, i_batch)
+        s_batch, mm = model(u_train, i_train, r_train, u_batch, i_batch, mm)
         mse = F.mse_loss(r_batch, s_batch)
         optim.zero_grad()
         mse.backward()
@@ -83,7 +83,7 @@ for i in range(1, len(rs)):
             p.requires_grad = False
         u_cat = th.cat([u_train, u_val, u_test])
         i_cat = th.cat([i_train, i_val, i_test])
-        s = model(u_train, i_train, r_train, u_cat, i_cat, args.bs_infer)
+        s, mm = model(u_train, i_train, r_train, u_cat, i_cat, mm, args.bs_infer)
         s_train, s_val, s_test = th.split(s, [len(r_train), len(r_val), len(r_test)])
         rmse_batch = r_max * mse ** 0.5
         rmse_train = r_max * utils.rmse_loss(r_train, s_train)
