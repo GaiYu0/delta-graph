@@ -16,4 +16,4 @@ class TemporalMF(nn.Module):
         self.T = T
 
     def forward(self, uu, ii, rr, v, j, mm, s=None):
-        pass
+        if len(mm) < T:

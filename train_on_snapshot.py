@@ -39,7 +39,9 @@ r_max = th.max(r)
 r /= r_max
 r_mean = th.mean(r)
 
-uids, iids, rs = th.split(uid, 0), th.split(iid, 0), th.split(r, 0)
+uids = list(map(th.squeeze, th.split(uid, 1)))
+iids = list(map(th.squeeze, th.split(iid, 1)))
+rs = list(map(th.squeeze, th.split(r, 1)))
 ns_train = [int(args.p_train * len(r)) for r in rs]
 ns_val = [int(args.p_val * len(r)) for r in rs]
 ns_test = [len(r) - n_train - n_val for r, n_train, n_val in zip(rs, ns_train, ns_val)]
@@ -60,10 +62,10 @@ mm = []
 for i in range(1, len(rs)):
     for j in range(args.n_iters):
         x_train = lambda x: eval(args.x_train.replace('x', x))
-        uu_train, ii_train, rr_train = map(x_train, ['uu', 'ii', 'rr'])
-        x_val = lambda x: eval(arrgs.x_val.replace('x', x))
-        u_val, i_val, r_val = map(th.cat, map(x_val, ['uu', 'ii', 'rr']))
-        u_test, i_test, r_test = map(th.cat, [uids_test[i], iids_test[i], rs_test[i]])
+        uu_train, ii_train, rr_train = map(x_train, ['uid', 'iid', 'r'])
+        x_val = lambda x: eval(args.x_val.replace('x', x))
+        u_val, i_val, r_val = map(x_val, ['uid', 'iid', 'r'])
+        u_test, i_test, r_test = uids_test[i], iids_test[i], rs_test[i]
 
         if args.bs_train is None:
             u_batch, i_batch, r_batch = u_train, i_train, r_train
