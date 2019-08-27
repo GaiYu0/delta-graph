@@ -32,14 +32,14 @@ class TemporalBiasedMF(nn.Module):
     def forward(self, uu, ii, rr, vv, jj, m, s=None):
         ss = []
         mm = []
-        m_u, m_i = m
+        m_u, m_i = None, None if m is None else m
         tail = lambda x: deque(x, maxlen=self.T)
         for v, j, h_u, h_i, b_u, b_i, mu in tail(zip(vv, jj,
                                                      self.hh_u, self.hh_i,
                                                      self.bb_u, self.bb_i, self.mus)):
-            g_u, m_u = self.merge(h_u, m_u)
-            g_i, m_i = self.merge(h_i, m_i)
+            g_u, m_u = self.merge_u(h_u.unsqueeze(0), m_u)
+            g_i, m_i = self.merge_i(h_i.unsqueeze(0), m_i)
             mm.append([m_u, m_i])
             if v is not None:
-                ss.append(MF.decode(g_u, g_i, v, j, s))
+                ss.append(MF.decode(g_u.squeeze(), g_i.squeeze(), v, j, s))
         return ss, None if len(mm) < self.T else mm[0]

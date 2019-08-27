@@ -58,11 +58,12 @@ optim = eval(args.optim)
 
 writer = SummaryWriter(args.logdir)
 
-mm = []
+m = None
 for i in range(1, len(rs)):
     for j in range(args.n_iters):
         x_train = lambda x: eval(args.x_train.replace('x', x))
         uu_train, ii_train, rr_train = map(x_train, ['uid', 'iid', 'r'])
+        u_train, i_train, r_train = map(th.cat, [uu_train, ii_train, rr_train])
         x_val = lambda x: eval(args.x_val.replace('x', x))
         u_val, i_val, r_val = map(x_val, ['uid', 'iid', 'r'])
         u_test, i_test, r_test = uids_test[i], iids_test[i], rs_test[i]
@@ -75,7 +76,7 @@ for i in range(1, len(rs)):
 
         for p in model.parameters():
             p.requires_grad = True
-        s_batch, mm = model(u_train, i_train, r_train, u_batch, i_batch, mm)
+        s_batch, m = model(u_train, i_train, r_train, u_batch, i_batch, m)
         mse = F.mse_loss(r_batch, s_batch)
         optim.zero_grad()
         mse.backward()
@@ -92,11 +93,11 @@ for i in range(1, len(rs)):
         rmse_val = r_max * utils.rmse_loss(r_val, s_val)
         rmse_test = r_max * utils.rmse_loss(r_test, s_test)
 
-        '''
         placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
         print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
               (placeholder, i + 1, rmse_batch, rmse_train, rmse_val, rmse_test))
 
+        '''
         writer.add_scalar('rmse_batch', rmse_batch.item(), i + 1)
         writer.add_scalar('rmse_train', rmse_train.item(), i + 1)
         writer.add_scalar('rmse_val', rmse_val.item(), i + 1)
