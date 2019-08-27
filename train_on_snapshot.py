@@ -72,11 +72,11 @@ for i in range(1, len(rs)):
             vv_batch.append(_u[randidx])
             jj_batch.append(_i[randidx])
             ss_batch.append(_r[randidx])
-    vv_val, jj_val, ss_val = [uids_val[k]], [iids_val[k]], [rs_val[k]]
-    vv_test, jj_test, ss_test = [uids_test[i]], [iids_test[i]], [rs_test[i]]
-    vv = list(map(th.cat, zip(vv_train, vv_val, vv_test)))
-    jj = list(map(th.cat, zip(jj_train, jj_val, jj_test)))
-    ss = list(map(th.cat, zip(ss_train, ss_val, ss_test)))
+    v_val, j_val, s_val = uids_val[k], iids_val[k], rs_val[k]
+    v_test, j_test, s_test = uids_test[i], iids_test[i], rs_test[i]
+    vv = th.cat([th.cat(vv_train), v_val, v_test])
+    jj = th.cat([th.cat(jj_train), j_jal, j_test])
+    rr = th.cat([th.cat(rr_train), r_ral, r_test])
 
     for j in range(args.n_iters):
         for p in model.parameters():
@@ -91,15 +91,11 @@ for i in range(1, len(rs)):
             p.requires_grad = False
 
         tt = model(uu, ii, rr, vv, jj, m, args.bs_infer)
-        tt_train, tt_val, tt_batch = zip(*[th.split(t, [len(s_train), len(s_val), len(s_test)]) \
-                                           for t, s_train, s_val, s_test in zip(tt,
-                                                                                ss_train,
-                                                                                ss_val,
-                                                                                ss_test)])
+        t_train, t_val, t_test = th.split(tt, [sum(map(len, rr_train)), len(r_val), len(r_test)])
         rmse_batch = r_max * mse ** 0.5
-        rmse_train = r_max * utils.rmse_loss(th.cat(ss_train), th.cat(tt_train))
-        rmse_val = r_max * utils.rmse_loss(th.cat(ss_val), th.cat(tt_val))
-        rmse_test = r_max * utils.rmse_loss(th.cat(ss_test), th.cat(tt_test))
+        rmse_train = r_max * utils.rmse_loss(th.cat(ss_train), t_train)
+        rmse_val = r_max * utils.rmse_loss(s_val, t_val)
+        rmse_test = r_max * utils.rmse_loss(s_test, t_test)
 
         placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
         print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
@@ -111,6 +107,7 @@ for i in range(1, len(rs)):
         writer.add_scalar('rmse_val', rmse_val.item(), i + 1)
         writer.add_scalar('rmse_test', rmse_test.item(), i + 1)
         '''
+
     m = model(uu, ii, rr, None, None, m, detach=True)
 
 writer.close()
