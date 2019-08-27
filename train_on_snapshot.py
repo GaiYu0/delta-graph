@@ -85,7 +85,7 @@ for i in range(1, len(rs)):
             p.requires_grad = False
         u_cat = th.cat([u_train, u_val, u_test])
         i_cat = th.cat([i_train, i_val, i_test])
-        s, mm = model(u_train, i_train, r_train, u_cat, i_cat, mm, args.bs_infer)
+        s, m = model(u_train, i_train, r_train, u_cat, i_cat, m, args.bs_infer)
         s_train, s_val, s_test = th.split(s, [len(r_train), len(r_val), len(r_test)])
         rmse_batch = r_max * mse ** 0.5
         rmse_train = r_max * utils.rmse_loss(r_train, s_train)
