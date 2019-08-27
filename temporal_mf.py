@@ -44,6 +44,5 @@ class TemporalBiasedMF(nn.Module):
                                                      self.bb_u, self.bb_i, self.mus)):
             g_u, m_u = self.merge_u(h_u.unsqueeze(0), m_u)
             g_i, m_i = self.merge_i(h_i.unsqueeze(0), m_i)
-            mm.append([m_u, m_i])
             tt.append(BiasedMF.decode(g_u.squeeze(), g_i.squeeze(), b_u, b_i, mu, v, j, s))
         return tt

@@ -67,21 +67,21 @@ for i in range(1, len(rs)):
         vv_batch, jj_batch, ss_batch = vv, jj, ss
     else:
         vv_batch, jj_batch, ss_batch = [], [], []
-        for u, i, r in zip(uu, ii, rr):
-            randidx = th.randperm(len(x), device=device)[:args.bs_train]
-            vv_batch.append(u[randidx])
-            jj_batch.append(i[randidx])
-            ss_batch.append(r[randidx])
-    vv_val, jj_val, ss_val = uids_val[k], iids_val[k], rs_val[k]
-    vv_test, jj_test, ss_test = uids_test[i], iids_test[i], rs_test[i]
-    vv = map(th.cat, zip(vv_train, vv_val, vv_test))
-    jj = map(th.cat, zip(jj_train, jj_val, jj_test))
-    ss = map(th.cat, zip(ss_train, ss_val, ss_test))
+        for _u, _i, _r in zip(uu, ii, rr):
+            randidx = th.randperm(len(r), device=device)[:args.bs_train]
+            vv_batch.append(_u[randidx])
+            jj_batch.append(_i[randidx])
+            ss_batch.append(_r[randidx])
+    vv_val, jj_val, ss_val = [uids_val[k]], [iids_val[k]], [rs_val[k]]
+    vv_test, jj_test, ss_test = [uids_test[i]], [iids_test[i]], [rs_test[i]]
+    vv = list(map(th.cat, zip(vv_train, vv_val, vv_test)))
+    jj = list(map(th.cat, zip(jj_train, jj_val, jj_test)))
+    ss = list(map(th.cat, zip(ss_train, ss_val, ss_test)))
 
     for j in range(args.n_iters):
         for p in model.parameters():
             p.requires_grad = True
-        tt_batch, m = model(uu, ii, rr, vv_batch, jj_batch, m)
+        tt_batch = model(uu, ii, rr, vv_batch, jj_batch, m)
         mse = F.mse_loss(th.cat(ss_batch), th.cat(tt_batch))
         optim.zero_grad()
         mse.backward()
@@ -90,7 +90,7 @@ for i in range(1, len(rs)):
         for p in model.parameters():
             p.requires_grad = False
 
-        tt, m = model(uu, ii, rr, vv, jj, m, args.bs_infer)
+        tt = model(uu, ii, rr, vv, jj, m, args.bs_infer)
         tt_train, tt_val, tt_batch = zip(*[th.split(t, [len(s_train), len(s_val), len(s_test)]) \
                                            for t, s_train, s_val, s_test in zip(tt,
                                                                                 ss_train,
