@@ -21,8 +21,12 @@ class TemporalBiasedMF(nn.Module):
         self.hh_i = nn.ParameterList([nn.Parameter(1e-3 * th.randn(n_items, d)) for _ in mus])
         self.bb_i = nn.ParameterList([nn.Parameter(th.zeros(n_users)) for _ in mus])
         self.bb_u = nn.ParameterList([nn.Parameter(th.zeros(n_users)) for _ in mus])
+        self.merge_u = lambda x, h: [x, h]
+        self.merge_i = lambda x, h: [x, h]
+        '''
         self.merge_u = nn.LSTM(d, d)
         self.merge_i = nn.LSTM(d, d)
+        '''
 
         self.n_users = n_users
         self.n_items = n_items
