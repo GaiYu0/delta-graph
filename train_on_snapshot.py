@@ -63,15 +63,6 @@ for i in range(1, len(rs)):
     k = i if args.semi else (i - 1)
     uu, ii, rr = uids[:k] + [uids_train[k]], iids[:k] + [iids_train[k]], rs[:k] + [rs_train[k]]
     vv_train, jj_train, ss_train = uu, ii, rr
-    if args.bs_train is None:
-        vv_batch, jj_batch, ss_batch = vv, jj, ss
-    else:
-        vv_batch, jj_batch, ss_batch = [], [], []
-        for _u, _i, _r in zip(uu, ii, rr):
-            randidx = th.randperm(len(r), device=device)[:args.bs_train]
-            vv_batch.append(_u[randidx])
-            jj_batch.append(_i[randidx])
-            ss_batch.append(_r[randidx])
     v_val, j_val, s_val = uids_val[k], iids_val[k], rs_val[k]
     v_test, j_test, s_test = uids_test[i], iids_test[i], rs_test[i]
     vv = vv_train[:-1] + [th.cat([vv_train[-1], v_val, v_test])]
@@ -79,6 +70,16 @@ for i in range(1, len(rs)):
     ss = ss_train[:-1] + [th.cat([ss_train[-1], s_val, s_test])]
 
     for j in range(args.n_iters):
+        if args.bs_train is None:
+            vv_batch, jj_batch, ss_batch = vv_train, jj_train, ss_train
+        else:
+            vv_batch, jj_batch, ss_batch = [], [], []
+            for v, j, s in zip(vv_train, jj_train, ss_train):
+                randidx = th.randperm(len(s), device=device)[:args.bs_train]
+                vv_batch.append(v[randidx])
+                jj_batch.append(j[randidx])
+                ss_batch.append(s[randidx])
+
         for p in model.parameters():
             p.requires_grad = True
         tt_batch = model(uu, ii, rr, vv_batch, jj_batch, m)
