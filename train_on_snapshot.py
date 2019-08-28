@@ -74,9 +74,9 @@ for i in range(1, len(rs)):
             ss_batch.append(_r[randidx])
     v_val, j_val, s_val = uids_val[k], iids_val[k], rs_val[k]
     v_test, j_test, s_test = uids_test[i], iids_test[i], rs_test[i]
-    vv = th.cat([th.cat(vv_train), v_val, v_test])
-    jj = th.cat([th.cat(jj_train), j_jal, j_test])
-    rr = th.cat([th.cat(rr_train), r_ral, r_test])
+    vv = vv_train[:-1] + [th.cat([vv_train[-1], v_val, v_test])]
+    jj = jj_train[:-1] + [th.cat([jj_train[-1], j_val, j_test])]
+    ss = ss_train[:-1] + [th.cat([ss_train[-1], s_val, s_test])]
 
     for j in range(args.n_iters):
         for p in model.parameters():
@@ -91,7 +91,7 @@ for i in range(1, len(rs)):
             p.requires_grad = False
 
         tt = model(uu, ii, rr, vv, jj, m, args.bs_infer)
-        t_train, t_val, t_test = th.split(tt, [sum(map(len, rr_train)), len(r_val), len(r_test)])
+        th.split(
         rmse_batch = r_max * mse ** 0.5
         rmse_train = r_max * utils.rmse_loss(th.cat(ss_train), t_train)
         rmse_val = r_max * utils.rmse_loss(s_val, t_val)
