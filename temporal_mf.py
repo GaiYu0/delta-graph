@@ -4,6 +4,7 @@ import torch as th
 import torch.nn as nn
 
 from mf import *
+import utils
 
 class CollapsedMF(nn.Module):
     def __init__(self, mf):
@@ -30,13 +31,15 @@ class TemporalBiasedMF(nn.Module):
         self.T = T
 
     def forward(self, uu, ii, rr, vv, jj, m, s=None, detach=False):
-        m_u, m_i = None, None if m is None else m
+        m_u, m_i = [None, None] if m is None else m
+
         if detach:
             if len(rr) < self.T:
-                return [self.merge_u(self.hh_u[0].unsqueeze(0), m_u)[1].detach(),
-                        self.merge_i(self.hh_i[0].unsqueeze(0), m_u)[1].detach()]
-            else:
                 return None
+            else:
+                return [utils.detach(self.merge_u(self.hh_u[0].unsqueeze(0), m_u)[1]),
+                        utils.detach(self.merge_i(self.hh_i[0].unsqueeze(0), m_i)[1])]
+
         tt = []
         tail = lambda x: deque(x, maxlen=self.T)
         for v, j, h_u, h_i, b_u, b_i, mu in tail(zip(vv, jj,

@@ -61,7 +61,7 @@ writer = SummaryWriter(args.logdir)
 m = None
 for i in range(1, len(rs)):
     k = i if args.semi else (i - 1)
-    uu, ii, rr = uids[:k] + [uids_train[k]], iids[:k] + [iids_train[k]], rs[:k] + [rs[k]]
+    uu, ii, rr = uids[:k] + [uids_train[k]], iids[:k] + [iids_train[k]], rs[:k] + [rs_train[k]]
     vv_train, jj_train, ss_train = uu, ii, rr
     if args.bs_train is None:
         vv_batch, jj_batch, ss_batch = vv, jj, ss
@@ -82,7 +82,7 @@ for i in range(1, len(rs)):
         for p in model.parameters():
             p.requires_grad = True
         tt_batch = model(uu, ii, rr, vv_batch, jj_batch, m)
-        mse = F.mse_loss(th.cat(ss_batch), th.cat(tt_batch))
+        mse = F.mse_loss(th.cat(ss_batch[-len(tt_batch):]), th.cat(tt_batch))
         optim.zero_grad()
         mse.backward()
         optim.step()
@@ -91,22 +91,22 @@ for i in range(1, len(rs)):
             p.requires_grad = False
 
         tt = model(uu, ii, rr, vv, jj, m, args.bs_infer)
-        t_train = th.cat([th.cat(tt[:-1]), tt[-1][:len(ss_train[-1])]])
+        t_train = th.cat(([th.cat(tt[:-1])] if len(tt) > 1 else []) + [tt[-1][:len(ss_train[-1])]])
         t_val, t_test = th.split(tt[-1][len(ss_train[-1]):], [len(s_val), len(s_test)])
         rmse_batch = r_max * mse ** 0.5
-        rmse_train = r_max * utils.rmse_loss(th.cat(ss_train), t_train)
+        rmse_train = r_max * utils.rmse_loss(th.cat(ss_train[-len(tt):]), t_train)
         rmse_val = r_max * utils.rmse_loss(s_val, t_val)
         rmse_test = r_max * utils.rmse_loss(s_test, t_test)
 
-        placeholder = '0' * (len(str(args.n_iters)) - len(str(i + 1)))
+        placeholder = '0' * (len(str(args.n_iters)) - len(str(i)))
         print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
-              (placeholder, i + 1, rmse_batch, rmse_train, rmse_val, rmse_test))
+              (placeholder, i, rmse_batch, rmse_train, rmse_val, rmse_test))
 
         '''
-        writer.add_scalar('rmse_batch', rmse_batch.item(), i + 1)
-        writer.add_scalar('rmse_train', rmse_train.item(), i + 1)
-        writer.add_scalar('rmse_val', rmse_val.item(), i + 1)
-        writer.add_scalar('rmse_test', rmse_test.item(), i + 1)
+        writer.add_scalar('rmse_batch', rmse_batch.item(), i)
+        writer.add_scalar('rmse_train', rmse_train.item(), i)
+        writer.add_scalar('rmse_val', rmse_val.item(), i)
+        writer.add_scalar('rmse_test', rmse_test.item(), i)
         '''
 
     m = model(uu, ii, rr, None, None, m, detach=True)
