@@ -5,13 +5,13 @@ import torch.nn as nn
 
 from mf import *
 
-class CollapsedMF(nn.Module):
-    def __init__(self, mf):
-        super().__init__()
-        self.mf = mf
+class CollapsedBiasedMF(BiasedMF):
+    def __init__(self, n_users, n_items, d, mu):
+        super().__init__(n_users, n_items, d, mu)
 
     def forward(self, uu, ii, rr, vv, jj, m, s=None):
-        return self.mf(None, None, None, vv[-1], jj[-1], s=None), None
+        return [super().forward(u, i, r, v, j, s) \
+                for u, i, r, v, j in zip(uu, ii, rr, vv, jj)], None
 
 class TemporalBiasedMF(nn.Module):
     def __init__(self, n_users, n_items, d, mus, T):
