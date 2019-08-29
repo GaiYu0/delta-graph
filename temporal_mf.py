@@ -4,7 +4,6 @@ import torch as th
 import torch.nn as nn
 
 from mf import *
-import utils
 
 class CollapsedMF(nn.Module):
     def __init__(self, mf):
@@ -21,12 +20,12 @@ class TemporalBiasedMF(nn.Module):
         self.hh_i = nn.ParameterList([nn.Parameter(1e-3 * th.randn(n_items, d)) for _ in mus])
         self.bb_i = nn.ParameterList([nn.Parameter(th.zeros(n_users)) for _ in mus])
         self.bb_u = nn.ParameterList([nn.Parameter(th.zeros(n_users)) for _ in mus])
+        '''
         self.merge_u = lambda x, h: [x, h]
         self.merge_i = lambda x, h: [x, h]
         '''
         self.merge_u = nn.LSTM(d, d)
         self.merge_i = nn.LSTM(d, d)
-        '''
 
         self.n_users = n_users
         self.n_items = n_items
@@ -35,14 +34,26 @@ class TemporalBiasedMF(nn.Module):
         self.T = T
 
     def forward(self, uu, ii, rr, vv, jj, m, s=None, detach=False):
+        """
+        Parameters
+        ----------
+        uu, ii, rr : list of Tensor
+        vv, jj : list of Tensor
+
+        Returns
+        -------
+        """
         m_u, m_i = [None, None] if m is None else m
 
         if detach:
             if len(rr) < self.T:
                 return None
             else:
-                return [utils.detach(self.merge_u(self.hh_u[0].unsqueeze(0), m_u)[1]),
-                        utils.detach(self.merge_i(self.hh_i[0].unsqueeze(0), m_i)[1])]
+                idx = len(rr) - self.T
+                h_u = self.hh_u[idx].unsqueeze(0)
+                h_i = self.hh_i[idx].unsqueeze(0)
+                detach = lambda x: [x[0].detach(), x[1].detach()]
+                return [detach(self.merge_u(h_u, m_u)[1]), detach(self.merge_i(h_i, m_i)[1])]
 
         tt = []
         tail = lambda x: deque(x, maxlen=self.T)

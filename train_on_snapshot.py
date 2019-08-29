@@ -60,10 +60,10 @@ writer = SummaryWriter(args.logdir)
 
 m = None
 for i in range(1, len(rs)):
-    k = i if args.semi else (i - 1)
-    uu, ii, rr = uids[:k] + [uids_train[k]], iids[:k] + [iids_train[k]], rs[:k] + [rs_train[k]]
+    x = i if args.semi else (i - 1)
+    uu, ii, rr = uids[:x] + [uids_train[x]], iids[:x] + [iids_train[x]], rs[:x] + [rs_train[x]]
     vv_train, jj_train, ss_train = uu, ii, rr
-    v_val, j_val, s_val = uids_val[k], iids_val[k], rs_val[k]
+    v_val, j_val, s_val = uids_val[x], iids_val[x], rs_val[x]
     v_test, j_test, s_test = uids_test[i], iids_test[i], rs_test[i]
     vv = vv_train[:-1] + [th.cat([vv_train[-1], v_val, v_test])]
     jj = jj_train[:-1] + [th.cat([jj_train[-1], j_val, j_test])]
