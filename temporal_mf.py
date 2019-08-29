@@ -10,7 +10,7 @@ class CollapsedBiasedMF(BiasedMF):
         super().__init__(n_users, n_items, d, mu)
 
     def forward(self, uu, ii, rr, vv, jj, m, s=None):
-        return [super().forward(u, i, r, v, j, s) \
+        return [super(CollapsedBiasedMF, self).forward(u, i, r, v, j, s) \
                 for u, i, r, v, j in zip(uu, ii, rr, vv, jj)], None
 
 class TemporalBiasedMF(nn.Module):
