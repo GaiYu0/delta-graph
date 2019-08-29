@@ -10,8 +10,8 @@ class CollapsedMF(nn.Module):
         super().__init__()
         self.mf = mf
 
-    def forward(self, uu, ii, rr, v, j, mm, s=None):
-        return self.mf(None, None, None, v, j, s=None), None
+    def forward(self, uu, ii, rr, vv, jj, m, s=None):
+        return self.mf(None, None, None, vv[-1], jj[-1], s=None), None
 
 class TemporalBiasedMF(nn.Module):
     def __init__(self, n_users, n_items, d, mus, T):
