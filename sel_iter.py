@@ -9,13 +9,13 @@ def extract_values(file_path, tags):
     loader = EventFileLoader(file_path)
     tag_values = defaultdict(list)
     for event in loader.Load():
-        tag = event.summary.value[0].tag
         try:
+            tag = event.summary.value[0].tag
             if tag in tags:
                 tag_values[tag].append(event.summary.value[0].simple_value)
         except (AttributeError, IndexError):
             pass
-    return values
+    return tag_values
 
 if __name__ == '__main__':
     b = extract_values('%s/b/%s' % (sys.argv[1], os.listdir('%s/b' % sys.argv[1])[0]))
