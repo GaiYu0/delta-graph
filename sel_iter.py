@@ -1,16 +1,18 @@
 # python3 -W ignore select-iteration.py PATH METRIC
 
+from collections import defaultdict
 import os
 import sys
 from event_file_loader import EventFileLoader
 
-def extract_values(file_path, tag):
+def extract_values(file_path, tags):
     loader = EventFileLoader(file_path)
-    values = []
+    tag_values = defaultdict(list)
     for event in loader.Load():
+        tag = event.summary.value[0].tag
         try:
-            if event.summary.value[0].tag == tag:
-                values.append(event.summary.value[0].simple_value)
+            if tag in tags:
+                tag_values[tag].append(event.summary.value[0].simple_value)
         except (AttributeError, IndexError):
             pass
     return values
