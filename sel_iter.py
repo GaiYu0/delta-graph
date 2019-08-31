@@ -1,8 +1,6 @@
-# python3 -W ignore select-iteration.py PATH METRIC
-
 from collections import defaultdict
-import os
 import sys
+import numpy as np
 from event_file_loader import EventFileLoader
 
 def extract_values(file_path, tags):
@@ -18,22 +16,6 @@ def extract_values(file_path, tags):
     return tag_values
 
 if __name__ == '__main__':
-    b = extract_values('%s/b/%s' % (sys.argv[1], os.listdir('%s/b' % sys.argv[1])[0]))
-    c = extract_values('%s/c/%s' % (sys.argv[1], os.listdir('%s/c' % sys.argv[1])[0]))
-
-    # TODO tensorboard bug?
-    min_len = min(len(b), len(c))
-    b = b[:min_len]
-    c = c[:min_len]
-    inf = float('Inf')
-    predicate = lambda pair: pair[0] != inf and pair[1] != inf
-    try:
-        b, c = map(list, zip(*filter(predicate, zip(b, c))))
-    except ValueError:
-        pass
-
-    if b:
-        x = max(b)
-        print('%.3f %.3f' % (x, c[b.index(x)]))
-    else:
-        print('0.0 0.0')
+    tags = ['rmse_batch', 'rmse_train', 'rmse_val', 'rmse_test']
+    tag_values = {k : np.array(v) for v in extract_values(sys.argv[1], tags)}
+    print(eval(sys.argv[2]))
