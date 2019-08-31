@@ -16,7 +16,8 @@ def extract_values(file_path, tags):
     return tag_values
 
 if __name__ == '__main__':
+    file_path = sys.argv[1]
     tags = ['rmse_batch', 'rmse_train', 'rmse_val', 'rmse_test']
-    for tag, values in extract_values(sys.argv[1], tags).items():
+    for tag, values in extract_values(file_path, tags).items():
         locals()[tag] = np.array(values)
-    print(eval(sys.argv[2]))
+    print(file_path, eval(sys.argv[2]))
