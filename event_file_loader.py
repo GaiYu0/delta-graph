@@ -29,9 +29,9 @@ class EventFileLoader(object):
   def __init__(self, file_path):
     if file_path is None:
       raise ValueError('A file path is required')
-    file_path = tf.resource_loader.readahead_file_path(file_path)
-    tf.logging.debug('Opening a record reader pointing at %s', file_path)
-    with tf.errors.raise_exception_on_not_ok_status() as status:
+    file_path = tf.compat.v1.resource_loader.readahead_file_path(file_path)
+    tf.compat.v1.logging.debug('Opening a record reader pointing at %s', file_path)
+    with  tf.compat.v1.errors.raise_exception_on_not_ok_status() as status:
       self._reader = tf.pywrap_tensorflow.PyRecordReader_New(
           tf.compat.as_bytes(file_path), 0, tf.compat.as_bytes(''), status)
     # Store it for logging purposes.
@@ -63,7 +63,7 @@ class EventFileLoader(object):
         # PyRecordReader holds the offset prior to the failed read, so retrying
         # will succeed.
         break
-      event = tf.Event()
+      event = tf.compat.v1.Event()
       event.ParseFromString(self._reader.record())
       yield event
     tf.logging.debug('No more events in %s', self._file_path)
