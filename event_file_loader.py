@@ -48,7 +48,7 @@ class EventFileLoader(object):
     Yields:
       All values that were written to disk that have not been yielded yet.
     """
-    tf.logging.debug('Loading events from %s', self._file_path)
+    tf.compat.v1.logging.debug('Loading events from %s', self._file_path)
     while True:
       try:
         if not inspect.getargspec(self._reader.GetNext).args[1:]: # pylint: disable=deprecated-method
@@ -58,7 +58,7 @@ class EventFileLoader(object):
           with tf.errors.raise_exception_on_not_ok_status() as status:
             self._reader.GetNext(status)
       except (tf.errors.DataLossError, tf.errors.OutOfRangeError) as e:
-        tf.logging.debug('Cannot read more events: %s', e)
+        tf.compat.v1.logging.debug('Cannot read more events: %s', e)
         # We ignore partial read exceptions, because a record may be truncated.
         # PyRecordReader holds the offset prior to the failed read, so retrying
         # will succeed.
@@ -66,7 +66,7 @@ class EventFileLoader(object):
       event = tf.compat.v1.Event()
       event.ParseFromString(self._reader.record())
       yield event
-    tf.logging.debug('No more events in %s', self._file_path)
+    tf.compat.v1.logging.debug('No more events in %s', self._file_path)
 
 
 def main(argv):
