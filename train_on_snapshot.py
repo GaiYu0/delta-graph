@@ -74,11 +74,11 @@ for i in range(1, len(rs)):
             vv_batch, jj_batch, ss_batch = vv_train, jj_train, ss_train
         else:
             vv_batch, jj_batch, ss_batch = [], [], []
-            for v, j, s in zip(vv_train, jj_train, ss_train):
-                randidx = th.randperm(len(s), device=device)[:args.bs_train]
-                vv_batch.append(v[randidx])
-                jj_batch.append(j[randidx])
-                ss_batch.append(s[randidx])
+            for v_train, j_train, s_train in zip(vv_train, jj_train, ss_train):
+                randidx = th.randperm(len(s_train), device=device)[:args.bs_train]
+                vv_batch.append(v_train[randidx])
+                jj_batch.append(j_train[randidx])
+                ss_batch.append(s_train[randidx])
 
         for p in model.parameters():
             p.requires_grad = True
@@ -99,16 +99,16 @@ for i in range(1, len(rs)):
         rmse_val = r_max * utils.rmse_loss(s_val, t_val)
         rmse_test = r_max * utils.rmse_loss(s_test, t_test)
 
-        placeholder = '0' * (len(str(args.n_iters)) - len(str(i)))
-        print('[%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
-              (placeholder, i, rmse_batch, rmse_train, rmse_val, rmse_test))
+        placeholder_i = '0' * (len(str(len(rs) - 1)) - len(str(i)))
+        placeholder_j = '0' * (len(str(args.n_iters)) - len(str(j)))
+        print('[%s%d][%s%d]rmse_batch: %.3e | rmse_train: %.3e | rmse_val: %.3e | rmse_test: %.3e' % \
+              (placeholder_i, i, placeholder_j, j, rmse_batch, rmse_train, rmse_val, rmse_test))
 
-        '''
-        writer.add_scalar('rmse_batch', rmse_batch.item(), i)
-        writer.add_scalar('rmse_train', rmse_train.item(), i)
-        writer.add_scalar('rmse_val', rmse_val.item(), i)
-        writer.add_scalar('rmse_test', rmse_test.item(), i)
-        '''
+        global_step = (i - 1) * args.n_iters + j
+        writer.add_scalar('rmse_batch', rmse_batch.item(), global_step)
+        writer.add_scalar('rmse_train', rmse_train.item(), global_step)
+        writer.add_scalar('rmse_val', rmse_val.item(), global_step)
+        writer.add_scalar('rmse_test', rmse_test.item(), global_step)
 
     m = model(uu, ii, rr, None, None, m, detach=True)
 
