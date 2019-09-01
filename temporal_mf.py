@@ -59,7 +59,8 @@ class TemporalBiasedMF(nn.Module):
                 idx = len(rr) - self.T
                 h_u = self.hh_u[idx].unsqueeze(0)
                 h_i = self.hh_i[idx].unsqueeze(0)
-                detach = lambda x: [x[0].detach(), x[1].detach()]
+                detach = lambda x: x.detach()
+                # detach = lambda x: [x[0].detach(), x[1].detach()]
                 return [detach(self.merge_u(h_u, m_u)[1]), detach(self.merge_i(h_i, m_i)[1])]
 
         tt = []
