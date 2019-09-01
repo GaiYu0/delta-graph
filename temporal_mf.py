@@ -27,8 +27,12 @@ class TemporalBiasedMF(nn.Module):
         self.merge_u = lambda x, h: [x, h]
         self.merge_i = lambda x, h: [x, h]
         '''
+        self.merge_u = nn.RNN(d, d)
+        self.merge_i = nn.RNN(d, d)
+        '''
         self.merge_u = nn.LSTM(d, d)
         self.merge_i = nn.LSTM(d, d)
+        '''
 
         self.n_users = n_users
         self.n_items = n_items
