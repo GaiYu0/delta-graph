@@ -3,7 +3,7 @@ n_gpus=8
 
 bs_train=100000
 d=512
-n_iters=1
+n_iters=100
 p_train=0.8
 p_val=0.1
 
