@@ -90,7 +90,6 @@ for i in range(1, len(rs)):
 
         for p in model.parameters():
             p.requires_grad = False
-
         tt = model(uu, ii, rr, vv, jj, m, args.bs_infer)
         t_train = th.cat(([th.cat(tt[:-1])] if len(tt) > 1 else []) + [tt[-1][:len(ss_train[-1])]])
         t_val, t_test = th.split(tt[-1][len(ss_train[-1]):], [len(s_val), len(s_test)])
