@@ -26,9 +26,9 @@ parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--semi', action='store_true')
 args = parser.parse_args()
 
-uid = np.load(args.ds + '/uid.npy')
-iid = np.load(args.ds + '/iid.npy')
-r = np.load(args.ds + '/r.npy')
+uid = np.load(args.ds + '/uid.npy').astype(np.int64)
+iid = np.load(args.ds + '/iid.npy').astype(np.int64)
+r = np.load(args.ds + '/r.npy').astype(np.float32)
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
 perm = th.randperm(len(r), device=device)
