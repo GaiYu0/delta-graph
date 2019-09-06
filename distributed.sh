@@ -22,7 +22,7 @@ for i in $(seq 0 0); do
             if [ $host_idx -eq ${#hosts[*]} ]; then
                 wait
                 for host in ${hosts[*]}; do
-                    scp -r ubuntu@$host:delta-graph/runs/* runs &
+                    scp -r ubuntu@$host:delta-graph/runs/bmf/* runs/bmf &
                 done
                 wait
                 host_idx=0
