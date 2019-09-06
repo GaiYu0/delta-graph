@@ -15,7 +15,7 @@ for i in $(seq 0 0); do
         for minus_log_wd in $(seq 1 4); do
             echo ${hosts[$host_idx]} ${gpus[$gpu_idx]}
 #           ssh -n ubuntu@${hosts[$host_idx]} "source activate pytorch_p36; python3 -c \"import torch; print(torch.__version__)\""
-            ssh -n ubuntu@${hosts[$host_idx]} "source activate pytorch_p36; cd delta-graph; python3 train.py --bs-train $bs_train --ds ml-10m/partitions-100/partition-$i --gpu ${gpus[$gpu_idx]} --model \"BiasedMF(n_users, n_items, $d, r_mean)\" --n-iters $n_iters --optim \"Adam(model.parameters(), 1e-$minus_log_lr, weight_decay=1e-$minus_log_wd)\" --p-train $p_train --p-val $p_val --logdir runs/bmf/$i-$minus_log_lr-$minus_log_wd" > logs/$i-$minus_log_lr-$minus_log_wd &
+            ssh -n ubuntu@${hosts[$host_idx]} "source activate pytorch_p36; cd delta-graph; python3 train.py --bs-train $bs_train --ds ml-10m/partitions-100/partition-$i --gpu ${gpus[$gpu_idx]} --model \"BiasedMF(n_users, n_items, $d, r_mean)\" --n-iters $n_iters --optim \"Adam(model.parameters(), 1e-$minus_log_lr, weight_decay=1e-$minus_log_wd)\" --p-train $p_train --p-val $p_val --logdir runs/bmf/$i-$minus_log_lr-$minus_log_wd" | tee logs/$i-$minus_log_lr-$minus_log_wd &
             gpu_idx=$(($gpu_idx + 1))
             if [ $gpu_idx -eq ${gpu_ptr[$host_idx]} ]; then
                 host_idx=$(($host_idx + 1))
