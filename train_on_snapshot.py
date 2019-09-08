@@ -28,7 +28,7 @@ args = parser.parse_args()
 
 uids = [x.astype(np.int64) for x in np.load(args.ds + '/uids.npy', allow_pickle=True)]
 iids = [x.astype(np.int64) for x in np.load(args.ds + '/iids.npy', allow_pickle=True)]
-rs = [x.astype(np.float32) for x in np.load(arsgs.ds + '/rs.npy', allow_pickle=True)]
+rs = [x.astype(np.float32) for x in np.load(args.ds + '/rs.npy', allow_pickle=True)]
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
 
