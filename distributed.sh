@@ -1,4 +1,8 @@
-hosts=(3.94.29.70 34.236.254.237 3.222.200.79 34.205.87.121)
+hosts=($1)
+if [ -z $hosts ]; then
+    hosts=($(cat hosts))
+fi
+
 gpu_ptr=($(seq 8 8 $((8 * ${#hosts[*]}))))
 gpus=($(for i in $(seq 1 ${#hosts[*]}); do echo $(seq 0 7); done))
 
