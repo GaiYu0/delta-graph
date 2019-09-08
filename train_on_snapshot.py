@@ -26,30 +26,28 @@ parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--semi', action='store_true')
 args = parser.parse_args()
 
+device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
+
 uids = [x.astype(np.int64) for x in np.load(args.ds + '/uids.npy', allow_pickle=True)]
 iids = [x.astype(np.int64) for x in np.load(args.ds + '/iids.npy', allow_pickle=True)]
 rs = [x.astype(np.float32) for x in np.load(args.ds + '/rs.npy', allow_pickle=True)]
 
-device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
-
-uid = th.from_numpy(np.hstack(uids)).to(device)
-iid = th.from_numpy(np.hstack(iids)).to(device)
-r = th.from_numpy(np.hstack(rs)).to(device)
-n_users = th.max(uid) + 1
-n_items = th.max(iid) + 1
-r_max = th.max(r)
-r /= r_max
-r_mean = th.mean(r)
-
-shuffled_uids = []
-shuffled_iids = []
-shuffled_rs = []
+shuffled_uids, shuffled_iids, shuffled_rs = [], [], []
 for uid, iid, r in zip(uids, iids, rs):
     perm = th.randperm(len(r), device=device)
     shuffled_uids.append(th.from_numpy(uid).to(device)[perm])
     shuffled_iids.append(th.from_numpy(iid).to(device)[perm])
     shuffled_rs.append(th.from_numpy(r).to(device)[perm])
 uids, iids, rs = shuffled_uids, shuffled_iids, shuffled_rs
+
+uid = th.cat(uids)
+iid = th.cat(iids)
+r = th.cat(rs)
+n_users = th.max(uid) + 1
+n_items = th.max(iid) + 1
+r_max = th.max(r)
+r /= r_max
+r_mean = th.mean(r)
 
 ns_train = [int(args.p_train * len(r)) for r in rs]
 ns_val = [int(args.p_val * len(r)) for r in rs]
