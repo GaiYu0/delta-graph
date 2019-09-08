@@ -4,7 +4,7 @@ gpus=($(for i in $(seq 1 ${#hosts[*]}); do echo $(seq 0 7); done))
 
 bs_train=100000
 d=256
-n_iters=1000
+n_iters=1
 p_train=0.8
 p_val=0.1
 

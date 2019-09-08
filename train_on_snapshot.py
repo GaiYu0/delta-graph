@@ -49,6 +49,7 @@ for uid, iid, r in zip(uids, iids, rs):
     shuffled_uids.append(th.from_numpy(uid).to(device)[perm])
     shuffled_iids.append(th.from_numpy(iid).to(device)[perm])
     shuffled_rs.append(th.from_numpy(r).to(device)[perm])
+uids, iids, rs = shuffled_uids, shuffled_iids, shuffled_rs
 
 ns_train = [int(args.p_train * len(r)) for r in rs]
 ns_val = [int(args.p_val * len(r)) for r in rs]
