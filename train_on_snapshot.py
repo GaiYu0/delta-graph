@@ -26,32 +26,37 @@ parser.add_argument('--p-val', type=float, required=True)
 parser.add_argument('--semi', action='store_true')
 args = parser.parse_args()
 
-uid = np.load(args.ds + '/uid.npy').astype(np.int64)
-iid = np.load(args.ds + '/iid.npy').astype(np.int64)
-r = np.load(args.ds + '/r.npy').astype(np.float32)
+uids = [x.astype(np.int64) for x in np.load(args.ds + '/uids.npy')]
+iids = [x.astype(np.int64) for x in np.load(args.ds + '/iids.npy')]
+rs = [x.astype(np.float32) for x in np.load(arsgs.ds + '/rs.npy')]
 
 device = th.device('cpu') if args.gpu < 0 else th.device('cuda:%d' % args.gpu)
-perm = th.randperm(len(r), device=device)
-uid = th.from_numpy(uid).to(device)[perm]
-iid = th.from_numpy(iid).to(device)[perm]
-r = th.from_numpy(r).to(device)[perm]
+
+uid = th.from_numpy(np.hstack(uids)).to(device)
+iid = th.from_numpy(np.hstack(iids)).to(device)
+r = th.from_numpy(np.hstack(rs)).to(device)
+n_users = th.max(uid) + 1
+n_items = th.max(iid) + 1
 r_max = th.max(r)
 r /= r_max
 r_mean = th.mean(r)
 
-uids = list(map(th.squeeze, th.split(uid, 1)))
-iids = list(map(th.squeeze, th.split(iid, 1)))
-rs = list(map(th.squeeze, th.split(r, 1)))
+shuffled_uids = []
+shuffled_iids = []
+shuffled_rs = []
+for uid, iid, r in zip(uids, iids, rs):
+    perm = th.randperm(len(r), device=device)
+    shuffled_uids.append(th.from_numpy(uid).to(device)[perm])
+    shuffled_iids.append(th.from_numpy(iid).to(device)[perm])
+    shuffled_rs.append(th.from_numpy(r).to(device)[perm])
+
 ns_train = [int(args.p_train * len(r)) for r in rs]
 ns_val = [int(args.p_val * len(r)) for r in rs]
 ns_test = [len(r) - n_train - n_val for r, n_train, n_val in zip(rs, ns_train, ns_val)]
 ss = list(zip(ns_train, ns_val, ns_test))
-uids_train, uids_val, uids_test = zip(*[th.split(uid, s) for uid, s in zip(uids, ss)])
-iids_train, iids_val, iids_test = zip(*[th.split(iid, s) for iid, s in zip(iids, ss)])
-rs_train, rs_val, rs_test = zip(*[th.split(r, s) for r, s in zip(rs, ss)])
-
-n_users = th.max(uid) + 1
-n_items = th.max(iid) + 1
+uids_train, uids_val, uids_test = zip(*[th.split(uid, s) for uid, s in zip(shuffled_uids, ss)])
+iids_train, iids_val, iids_test = zip(*[th.split(iid, s) for iid, s in zip(shuffled_iids, ss)])
+rs_train, rs_val, rs_test = zip(*[th.split(r, s) for r, s in zip(shuffled_rs, ss)])
 
 model = eval(args.model).to(device)
 optim = eval(args.optim)
