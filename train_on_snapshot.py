@@ -53,9 +53,9 @@ ns_train = [int(args.p_train * len(r)) for r in rs]
 ns_val = [int(args.p_val * len(r)) for r in rs]
 ns_test = [len(r) - n_train - n_val for r, n_train, n_val in zip(rs, ns_train, ns_val)]
 ss = list(zip(ns_train, ns_val, ns_test))
-uids_train, uids_val, uids_test = zip(*[th.split(uid, s) for uid, s in zip(shuffled_uids, ss)])
-iids_train, iids_val, iids_test = zip(*[th.split(iid, s) for iid, s in zip(shuffled_iids, ss)])
-rs_train, rs_val, rs_test = zip(*[th.split(r, s) for r, s in zip(shuffled_rs, ss)])
+uids_train, uids_val, uids_test = zip(*[th.split(uid, s) for uid, s in zip(uids, ss)])
+iids_train, iids_val, iids_test = zip(*[th.split(iid, s) for iid, s in zip(iids, ss)])
+rs_train, rs_val, rs_test = zip(*[th.split(r / r_max, s) for r, s in zip(rs, ss)])
 
 model = eval(args.model).to(device)
 optim = eval(args.optim)
