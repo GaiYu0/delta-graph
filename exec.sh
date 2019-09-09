@@ -4,6 +4,6 @@ if [ -z $hosts ]; then
 fi
 
 for host in ${hosts[*]}; do
-    ssh -n ubuntu@$host "$1" &
+    ssh -n ubuntu@$host "$1";
 done
 wait

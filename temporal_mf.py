@@ -23,12 +23,12 @@ class TemporalBiasedMF(nn.Module):
         self.hh_i = nn.ParameterList([nn.Parameter(1e-3 * th.randn(n_items, d)) for _ in mus])
         self.bb_u = nn.ParameterList([nn.Parameter(th.zeros(n_users)) for _ in mus])
         self.bb_i = nn.ParameterList([nn.Parameter(th.zeros(n_items)) for _ in mus])
+        '''
         self.merge_u = lambda x, h: [x, h]
         self.merge_i = lambda x, h: [x, h]
         '''
         self.merge_u = nn.RNN(d, d)
         self.merge_i = nn.RNN(d, d)
-        '''
         '''
         self.merge_u = nn.LSTM(d, d)
         self.merge_i = nn.LSTM(d, d)
@@ -59,8 +59,8 @@ class TemporalBiasedMF(nn.Module):
                 idx = len(rr) - self.T
                 h_u = self.hh_u[idx].unsqueeze(0)
                 h_i = self.hh_i[idx].unsqueeze(0)
-                detach = lambda x: None
-                # detach = lambda x: x.detach()
+                # detach = lambda x: None
+                detach = lambda x: x.detach()
                 # detach = lambda x: [x[0].detach(), x[1].detach()]
                 return [detach(self.merge_u(h_u, m_u)[1]), detach(self.merge_i(h_i, m_i)[1])]
 
