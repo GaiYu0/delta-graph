@@ -40,13 +40,14 @@ for uid, iid, r in zip(uids, iids, rs):
     shuffled_rs.append(th.from_numpy(r).to(device)[perm])
 uids, iids, rs = shuffled_uids, shuffled_iids, shuffled_rs
 
+r_max = max(map(th.max, rs))
+rs = [r / r_max for r in rs]
+
 uid = th.cat(uids)
 iid = th.cat(iids)
 r = th.cat(rs)
 n_users = th.max(uid) + 1
 n_items = th.max(iid) + 1
-r_max = th.max(r)
-r /= r_max
 r_mean = th.mean(r)
 
 ns_train = [int(args.p_train * len(r)) for r in rs]
@@ -55,7 +56,7 @@ ns_test = [len(r) - n_train - n_val for r, n_train, n_val in zip(rs, ns_train, n
 ss = list(zip(ns_train, ns_val, ns_test))
 uids_train, uids_val, uids_test = zip(*[th.split(uid, s) for uid, s in zip(uids, ss)])
 iids_train, iids_val, iids_test = zip(*[th.split(iid, s) for iid, s in zip(iids, ss)])
-rs_train, rs_val, rs_test = zip(*[th.split(r / r_max, s) for r, s in zip(rs, ss)])
+rs_train, rs_val, rs_test = zip(*[th.split(r, s) for r, s in zip(rs, ss)])
 
 model = eval(args.model).to(device)
 optim = eval(args.optim)
